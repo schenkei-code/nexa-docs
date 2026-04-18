@@ -1,0 +1,41 @@
+---
+title: Reports REST
+description: Generate and retrieve performance reports for your NexaAds campaigns.
+---
+
+# Reports · REST
+
+## Generate
+
+```
+POST /v1/reports
+```
+
+Body:
+
+```json
+{
+  "date_range": { "from": "2026-04-01", "to": "2026-04-18" },
+  "platforms":  ["meta", "google"],
+  "metrics":    ["impressions", "clicks", "spend", "conversions", "roas"],
+  "group_by":   ["platform", "campaign"]
+}
+```
+
+Response: `202 Accepted` with a job id. Poll `GET /v1/reports/{id}` until
+`status: "ready"`, then fetch `GET /v1/reports/{id}/export?format=csv|json|xlsx`.
+
+## List
+
+```
+GET /v1/reports?limit=20
+```
+
+## Cancel
+
+```
+POST /v1/reports/{id}/cancel
+```
+
+Canceling a job refunds the reserved quota but does not refund credits already
+consumed for partial work.

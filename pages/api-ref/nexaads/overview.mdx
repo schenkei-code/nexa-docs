@@ -1,0 +1,46 @@
+---
+title: NexaAds API
+description: REST + MCP surface for AI-driven ad operations.
+---
+
+import { Callout, Cards } from "nextra/components";
+
+# NexaAds API
+
+<span className="nexa-product-pill" data-product="ads">NexaAds</span>
+
+NexaAds exposes two complementary surfaces:
+
+1. **REST API** — for humans and backend integrations.
+2. **MCP server** — for LLM agents (Claude, Cursor, OpenAI Agents, …).
+
+Both share the same auth, the same resources, the same rate limits.
+
+<Cards>
+  <Cards.Card title="MCP Server" href="/api-ref/nexaads/mcp-server">
+    Endpoint, handshake, capabilities.
+  </Cards.Card>
+  <Cards.Card title="Meta Tools" href="/api-ref/nexaads/tools-meta">
+    60+ tools for Meta Ads — campaigns, adsets, creatives, insights.
+  </Cards.Card>
+  <Cards.Card title="Google Tools" href="/api-ref/nexaads/tools-google">
+    35+ tools for Google Ads — campaigns, keywords, reports.
+  </Cards.Card>
+  <Cards.Card title="Campaigns REST" href="/api-ref/nexaads/campaigns">
+    Classic REST for CRUD on campaigns.
+  </Cards.Card>
+</Cards>
+
+## When to use what
+
+| I want to…                           | Use                                |
+| ------------------------------------ | ---------------------------------- |
+| Build a CRUD dashboard               | **REST**                           |
+| Let Claude manage ads in chat        | **MCP**                            |
+| Run a scheduled budget optimizer     | **REST** (cron) + `budget.optimize`|
+| Expose one endpoint to a customer    | **REST** with scoped token         |
+
+<Callout>
+  MCP tool names mirror REST verbs — `nexaads.campaigns.create` is the MCP
+  equivalent of `POST /v1/campaigns`. Learn one, you know the other.
+</Callout>

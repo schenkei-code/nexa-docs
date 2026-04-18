@@ -1,0 +1,47 @@
+# Nexa API Documentation
+
+> Developer docs for the Nexa API family — one account, all products.
+> Hosted at https://docs.nexa.one. API base at https://api.nexa.one.
+
+## Products
+
+- **NexaAds** — REST + MCP for Meta Ads (60+ tools) and Google Ads (35+ tools). Base: https://api.nexaads.com/v1
+- **NexaCreate** — Generative image and video. Credits-based, async jobs, Replicate backend. Base: https://api.nexacreate.com/v1
+- **NexaLytics** — Creator-economy data: profile lookup, audience analytics, media-kit generation. Base: https://api.nexalytics.com/v1
+- **NexaVoize** — Voice assistant + TTS with XTTS v2 + Claude. Base: https://api.nexavoize.com/v1
+
+## Shared conventions
+
+- Auth: `Authorization: Bearer <token>` — tokens issued at nexa.one → Settings → API Tokens.
+- Keys: `nx_sk_live_*` (production), `nx_sk_test_*` (sandbox), `nx_pk_live_*` (publishable / front-end read-only).
+- Errors: uniform JSON shape with `type`, `code`, `message`, `request_id`.
+- Pagination: cursor-based with `cursor`, `has_more`, `next_cursor`.
+- Idempotency: send `Idempotency-Key` on unsafe methods; responses cached 24 h.
+- Versioning: path-based (`/v1`), never breaking within a major.
+
+## Where to start
+
+- Quickstart: https://docs.nexa.one/quickstart
+- Authentication: https://docs.nexa.one/auth
+- Webhooks: https://docs.nexa.one/webhooks
+- SDKs: https://docs.nexa.one/sdks (TypeScript, Python, Go)
+- Examples: https://docs.nexa.one/examples
+- Changelog: https://docs.nexa.one/changelog
+
+## Machine-readable API specs
+
+- https://docs.nexa.one/openapi-nexaads.yaml
+- https://docs.nexa.one/openapi-nexacreate.yaml
+- https://docs.nexa.one/openapi-nexalytics.yaml
+- https://docs.nexa.one/openapi-nexavoize.yaml
+
+## Agents via MCP
+
+Every product ships a Model Context Protocol server at
+`https://api.<product>.com/mcp`. Connect with a bearer token that has the
+`mcp` scope.
+
+## Contact
+
+- GitHub: https://github.com/schenkei-code/nexa-docs
+- Email: dominikschenkel.business@gmail.com

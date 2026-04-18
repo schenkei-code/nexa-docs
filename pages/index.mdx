@@ -1,0 +1,156 @@
+---
+title: The Nexa API
+description: One account, all products. Developer home for NexaAds, NexaCreate, NexaLytics, and NexaVoize.
+---
+
+import { Cards, Callout, Tabs } from "nextra/components";
+
+<div className="nexa-hero">
+  <span className="nexa-badge">v1 · public beta · api.nexa.one</span>
+  <h1>The Nexa API</h1>
+  <p className="lead">
+    One account, one auth surface, one design system — every Nexa product
+    speaks the same language. Ship faster with REST, MCP for agents, and
+    typed SDKs for every runtime you care about.
+  </p>
+  <div className="nexa-cta-row">
+    <a className="nexa-btn nexa-btn-primary" href="/quickstart">Get started →</a>
+    <a className="nexa-btn nexa-btn-ghost" href="/auth">Authentication</a>
+    <a className="nexa-btn nexa-btn-ghost" href="/sdks">Install an SDK</a>
+  </div>
+</div>
+
+## 5-minute quickstart
+
+<Tabs items={["TypeScript", "Python", "cURL"]}>
+  <Tabs.Tab>
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY! });
+
+const image = await nexa.create.images.generate({
+  prompt: "A minimalist product shot of a pink sneaker on violet gradient",
+  aspect_ratio: "1:1",
+});
+
+console.log(image.url);
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+from nexa import Nexa
+
+nexa = Nexa(api_key=os.environ["NEXA_API_KEY"])
+
+image = nexa.create.images.generate(
+    prompt="A minimalist product shot of a pink sneaker on violet gradient",
+    aspect_ratio="1:1",
+)
+
+print(image.url)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+curl https://api.nexacreate.com/v1/images \
+  -H "Authorization: Bearer $NEXA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A minimalist product shot of a pink sneaker on violet gradient",
+    "aspect_ratio": "1:1"
+  }'
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  API keys live under **Settings → API Tokens** in any Nexa dashboard. Test
+  keys start with `nx_sk_test_...`, live keys with `nx_sk_live_...`.
+</Callout>
+
+## Products
+
+<div className="nexa-grid">
+  <a className="nexa-glass" href="/api-ref/nexaads/overview" style={{ textDecoration: "none" }}>
+    <span className="nexa-chip" style={{ color: "var(--nexa-ads-primary)" }}>NexaAds</span>
+    <h3>AI-driven ad operations</h3>
+    <p>REST + MCP server for Meta Ads (60+ tools) and Google Ads (35+ tools). Agents manage campaigns in chat.</p>
+  </a>
+  <a className="nexa-glass" href="/api-ref/nexacreate/overview" style={{ textDecoration: "none" }}>
+    <span className="nexa-chip" style={{ color: "var(--nexa-create-primary)" }}>NexaCreate</span>
+    <h3>Generative image &amp; video</h3>
+    <p>Replicate-backed image and video endpoints with async jobs, credits, and automatic retries.</p>
+  </a>
+  <a className="nexa-glass" href="/api-ref/nexalytics/overview" style={{ textDecoration: "none" }}>
+    <span className="nexa-chip" style={{ color: "var(--nexa-lytics-primary)" }}>NexaLytics</span>
+    <h3>Creator-economy data</h3>
+    <p>Profile lookup, audience analytics, AI-generated media kits for 50M+ creators across TikTok, IG, YouTube.</p>
+  </a>
+  <a className="nexa-glass" href="/api-ref/nexavoize/overview" style={{ textDecoration: "none" }}>
+    <span className="nexa-chip" style={{ color: "var(--nexa-voize-primary)" }}>NexaVoize</span>
+    <h3>Voice assistant &amp; TTS</h3>
+    <p>Real-time voice assistant API, XTTS v2 synthesis, and Claude-backed conversational memory.</p>
+  </a>
+</div>
+
+## Endpoint map
+
+Every product exposes a familiar REST shape. Click any row for the full reference.
+
+<div className="nexa-grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))" }}>
+  <div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-post">POST</span> <span>/v1/campaigns</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-get">GET</span> <span>/v1/campaigns</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-patch">PATCH</span> <span>/v1/campaigns/&#123;id&#125;</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-post">POST</span> <span>/v1/reports</span></div>
+  </div>
+  <div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-post">POST</span> <span>/v1/images</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-post">POST</span> <span>/v1/videos</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-get">GET</span> <span>/v1/jobs/&#123;id&#125;</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-get">GET</span> <span>/v1/credits</span></div>
+  </div>
+  <div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-get">GET</span> <span>/v1/creators/&#123;handle&#125;</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-get">GET</span> <span>/v1/analytics</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-post">POST</span> <span>/v1/media-kits</span></div>
+    <div className="nexa-endpoint"><span className="nexa-method nexa-method-post">POST</span> <span>/v1/voice/synthesize</span></div>
+  </div>
+</div>
+
+## Why Nexa
+
+- **One token, every product.** [`nexa-auth`](/auth) issues a single bearer that scopes across Ads, Create, Lytics, Voize.
+- **Agent-native.** Every product ships an MCP server — Claude, Cursor, and OpenAI Agents connect with a single URL.
+- **Predictable shapes.** Same error format, same pagination, same idempotency rules everywhere.
+- **Typed SDKs.** First-class TypeScript, Python, and Go with retries, timeouts, and structured errors built in.
+
+## Start here
+
+<Cards>
+  <Cards.Card title="Quickstart" href="/quickstart">
+    Your first request in 5 minutes.
+  </Cards.Card>
+  <Cards.Card title="Authentication" href="/auth">
+    Tokens, scopes, and the shared auth flow.
+  </Cards.Card>
+  <Cards.Card title="SDKs" href="/sdks">
+    TypeScript, Python, Go.
+  </Cards.Card>
+  <Cards.Card title="Webhooks" href="/webhooks">
+    Events, signatures, delivery semantics.
+  </Cards.Card>
+  <Cards.Card title="Examples" href="/examples">
+    Copy-paste recipes for every product.
+  </Cards.Card>
+  <Cards.Card title="Changelog" href="/changelog">
+    API changes per release.
+  </Cards.Card>
+</Cards>

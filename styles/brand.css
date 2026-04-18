@@ -1,0 +1,295 @@
+/*
+ * Nexa Family brand tokens for nexa-docs.
+ * Primary brand = Violet -> Blue gradient (Nexa umbrella).
+ * Per-product accents keep their native colors.
+ */
+
+:root {
+  /* Neutrals */
+  --nexa-neutral-0:    #ffffff;
+  --nexa-neutral-50:   #fafafa;
+  --nexa-neutral-100:  #f4f4f5;
+  --nexa-neutral-200:  #e4e4e7;
+  --nexa-neutral-300:  #d4d4d8;
+  --nexa-neutral-400:  #a1a1aa;
+  --nexa-neutral-500:  #71717a;
+  --nexa-neutral-600:  #52525b;
+  --nexa-neutral-700:  #3f3f46;
+  --nexa-neutral-800:  #27272a;
+  --nexa-neutral-900:  #18181b;
+  --nexa-neutral-950:  #0a0a0f;
+  --nexa-neutral-1000: #000000;
+
+  /* Nexa primary brand: deep violet -> electric blue */
+  --nexa-violet:        #7c3aed;   /* violet-600 */
+  --nexa-violet-deep:   #5b21b6;   /* violet-800 */
+  --nexa-blue:          #2563eb;   /* blue-600 */
+  --nexa-blue-electric: #3b82f6;   /* blue-500 */
+  --nexa-cyan:          #22d3ee;   /* cyan-400 */
+  --nexa-gradient:      linear-gradient(135deg, #7c3aed 0%, #3b82f6 55%, #22d3ee 100%);
+  --nexa-gradient-soft: linear-gradient(135deg, rgba(124,58,237,0.22) 0%, rgba(59,130,246,0.18) 55%, rgba(34,211,238,0.14) 100%);
+
+  /* Signal */
+  --nexa-green:  #00ff88;
+  --nexa-danger: #ff4d4f;
+  --nexa-warn:   #ffb020;
+  --nexa-ok:     #22c55e;
+  --nexa-info:   #3b82f6;
+
+  /* Per-product accents */
+  --nexa-ads-primary:      #ff7a1a;
+  --nexa-ads-secondary:    #8c4a2a;
+  --nexa-create-primary:   #00ff88;
+  --nexa-create-ink:       #002a15;
+  --nexa-lytics-primary:   #ff8a00;
+  --nexa-lytics-secondary: #d4af37;
+  --nexa-voize-primary:    #7c5cff;
+  --nexa-voize-secondary:  #2cd4ff;
+  --nexa-flow-primary:     #ff6b5c;
+  --nexa-flow-secondary:   #ffb347;
+
+  /* Typography */
+  --nexa-font-display: Outfit, Inter, -apple-system, system-ui, sans-serif;
+  --nexa-font-body:    Outfit, Inter, -apple-system, system-ui, sans-serif;
+  --nexa-font-mono:    "Geist Mono", "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+/* Dark-mode only deep-violet canvas */
+html.dark,
+html.dark body {
+  background: radial-gradient(1200px 800px at 20% -10%, rgba(124, 58, 237, 0.18), transparent 60%),
+              radial-gradient(1000px 700px at 90% 0%, rgba(34, 211, 238, 0.12), transparent 55%),
+              var(--nexa-neutral-950);
+  background-attachment: fixed;
+  color-scheme: dark;
+}
+
+/* Body font */
+html, body { font-family: var(--nexa-font-body); }
+code, pre, kbd, samp { font-family: var(--nexa-font-mono); }
+
+/* Code-block selection glow */
+code::selection,
+pre::selection,
+pre code::selection {
+  background: rgba(124, 58, 237, 0.35);
+}
+
+/* Search highlight inside code blocks */
+.nextra-code mark,
+pre code mark,
+code mark {
+  background: rgba(124, 58, 237, 0.25);
+  color: inherit;
+  border-bottom: 1px solid var(--nexa-violet);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* Product pills */
+.nexa-product-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid currentColor;
+  color: var(--nexa-violet);
+}
+
+.nexa-product-pill[data-product="ads"]    { color: var(--nexa-ads-primary); }
+.nexa-product-pill[data-product="create"] { color: var(--nexa-create-primary); }
+.nexa-product-pill[data-product="lytics"] { color: var(--nexa-lytics-primary); }
+.nexa-product-pill[data-product="voize"]  { color: var(--nexa-voize-primary); }
+.nexa-product-pill[data-product="flow"]   { color: var(--nexa-flow-primary); }
+
+/* Landing-page hero + glass utilities */
+.nexa-hero {
+  position: relative;
+  padding: 4rem 0 2.5rem;
+  text-align: left;
+  overflow: hidden;
+}
+
+.nexa-hero::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 80%;
+  background: var(--nexa-gradient-soft);
+  filter: blur(60px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nexa-hero h1 {
+  font-family: var(--nexa-font-display);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+  background: var(--nexa-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nexa-hero p.lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--nexa-neutral-300);
+  max-width: 42rem;
+  margin: 0 0 1.5rem;
+}
+
+.nexa-hero .nexa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(8px);
+  color: var(--nexa-neutral-300);
+  margin-bottom: 1.25rem;
+}
+
+.nexa-hero .nexa-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--nexa-cyan);
+  box-shadow: 0 0 10px var(--nexa-cyan);
+}
+
+.nexa-cta-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.nexa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.nexa-btn-primary {
+  color: #fff !important;
+  background: var(--nexa-gradient);
+  box-shadow: 0 10px 30px -12px rgba(124,58,237,0.55);
+}
+
+.nexa-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px -14px rgba(59,130,246,0.7);
+}
+
+.nexa-btn-ghost {
+  color: var(--nexa-neutral-100) !important;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+}
+
+.nexa-btn-ghost:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* Glass card */
+.nexa-glass {
+  position: relative;
+  padding: 1.25rem 1.35rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  backdrop-filter: blur(10px);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.nexa-glass:hover {
+  border-color: rgba(124,58,237,0.35);
+  transform: translateY(-2px);
+}
+
+.nexa-glass h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--nexa-neutral-100);
+  font-family: var(--nexa-font-display);
+}
+
+.nexa-glass p {
+  margin: 0;
+  color: var(--nexa-neutral-400);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.nexa-glass .nexa-chip {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  font-family: var(--nexa-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nexa-cyan);
+}
+
+/* Endpoint grid */
+.nexa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+/* Endpoint row */
+.nexa-endpoint {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  font-family: var(--nexa-font-mono);
+  font-size: 0.82rem;
+}
+
+.nexa-method {
+  display: inline-block;
+  min-width: 52px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  text-align: center;
+  color: #fff;
+}
+
+.nexa-method-get    { background: #2563eb; }
+.nexa-method-post   { background: #059669; }
+.nexa-method-patch  { background: #ea580c; }
+.nexa-method-delete { background: #dc2626; }
+
+/* Remove Nextra's default h1 on landing when we render custom hero */
+.nexa-hero + h1, .nexa-hero ~ h1.nx-sr-only { display: none; }

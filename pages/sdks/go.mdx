@@ -1,0 +1,53 @@
+---
+title: Go SDK
+description: Install and use the idiomatic, typed Go SDK for Nexa.
+---
+
+# Go
+
+## Install
+
+```bash
+go get github.com/nexa/go-sdk
+```
+
+## Quickstart
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+
+    nexa "github.com/nexa/go-sdk"
+)
+
+func main() {
+    client := nexa.New(os.Getenv("NEXA_API_KEY"))
+
+    campaigns, err := client.Ads.Campaigns.List(context.Background(), &nexa.CampaignListParams{
+        Platform: nexa.String("meta"),
+    })
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(len(campaigns.Data))
+}
+```
+
+## Context & timeouts
+
+Every method takes `context.Context`. Use `context.WithTimeout` to bound
+requests.
+
+## Options
+
+```go
+nexa.New(key,
+    nexa.WithBaseURL("https://api.nexaads.com/v1"),
+    nexa.WithHTTPClient(myClient),
+    nexa.WithMaxRetries(5),
+)
+```

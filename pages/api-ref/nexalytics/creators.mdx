@@ -1,0 +1,65 @@
+---
+title: Creator Profile Lookup
+description: Look up a creator by handle, cross-platform, with engagement stats.
+---
+
+# Creator Profile Lookup
+
+## By handle
+
+```
+GET /v1/creators/lookup?handle=schenkei&platform=youtube
+```
+
+Response (abridged):
+
+```json
+{
+  "id": "cr_01HZ…",
+  "handle": "schenkei",
+  "platform": "youtube",
+  "display_name": "Schenkei",
+  "followers": 81000,
+  "engagement_rate": 0.054,
+  "categories": ["automotive", "diy", "tech"],
+  "verified": true,
+  "cross_platform": {
+    "instagram": "schenkei_",
+    "tiktok": null,
+    "x": null
+  },
+  "sources": [
+    { "field": "followers", "source": "youtube_api", "fetched_at": "2026-04-18T08:00:00Z" },
+    { "field": "engagement_rate", "source": "nexalytics_scraper", "fetched_at": "2026-04-18T08:00:00Z" }
+  ]
+}
+```
+
+## By URL
+
+```
+GET /v1/creators/lookup?url=https://instagram.com/schenkei_
+```
+
+NexaLytics resolves URL → platform → handle and returns the same shape.
+
+## Bulk lookup
+
+```
+POST /v1/creators/bulk
+```
+
+```json
+{ "queries": [
+  { "handle": "schenkei", "platform": "youtube" },
+  { "handle": "schenkei_", "platform": "instagram" }
+] }
+```
+
+Up to 100 queries per call. Responses come back in input order with `null`
+entries for handles that can't be resolved.
+
+## Freshness
+
+Every profile carries `updated_at`. Force a refresh with
+`?refresh=true` (costs more credits, bypasses cache).

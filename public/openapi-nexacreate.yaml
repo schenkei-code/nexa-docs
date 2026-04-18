@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: NexaCreate API
+  version: 0.1.0-stub
+  summary: Generative image & video API. Credits-based, async jobs.
+  description: |
+    Placeholder OpenAPI spec. Final spec lands with the v1 public beta.
+  contact:
+    name: Dominik Schenkel
+    email: dominikschenkel.business@gmail.com
+    url: https://docs.nexa.one
+servers:
+  - url: https://api.nexacreate.com/v1
+    description: Production
+  - url: https://api.nexacreate.com/v1/sandbox
+    description: Sandbox
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+  schemas:
+    Job:
+      type: object
+      properties:
+        id: { type: string, example: job_01HZ }
+        status: { type: string, enum: [queued, running, succeeded, failed] }
+        progress: { type: number, minimum: 0, maximum: 1 }
+        result:
+          type: object
+          properties:
+            url: { type: string, format: uri }
+paths:
+  /images:
+    post:
+      summary: Generate an image
+      responses:
+        "202":
+          description: Job accepted
+  /videos:
+    post:
+      summary: Generate a video
+      responses:
+        "202":
+          description: Job accepted
+  /jobs/{id}:
+    get:
+      summary: Get job status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+  /credits:
+    get:
+      summary: Get credit balance
+      responses:
+        "200":
+          description: OK

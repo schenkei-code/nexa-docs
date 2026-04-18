@@ -1,0 +1,176 @@
+---
+title: Meta Tools
+description: 60+ MCP tools for Meta Ads — campaigns, adsets, ads, creatives, audiences, insights.
+---
+
+import { Callout } from "nextra/components";
+
+# Meta Tools (60+)
+
+<span className="nexa-product-pill" data-product="ads">NexaAds · MCP</span>
+
+All Meta-related tools sit under the `nexaads.meta.*` namespace on the
+MCP server. They mirror the shape of the underlying Meta Graph API but with
+auth, retries, rate-limit smoothing and idempotency handled for you.
+
+<Callout type="info">
+  Tool signatures below document the in-repo catalogue from
+  `src/lib/mock-data.ts`. The tools marked **live** are wired to
+  production; the rest are planned but already discoverable via
+  `GET /mcp` so agents can see what's coming.
+</Callout>
+
+## Campaigns (live)
+
+### `nexaads.campaigns.list`
+
+List campaigns with filter and sort options.
+
+```json
+{
+  "platform": "string (optional) — meta | google | tiktok",
+  "status":   "string (optional) — Aktiv | Pausiert | Entwurf | Beendet",
+  "limit":    "number (optional, default 50)"
+}
+```
+
+### `nexaads.campaigns.create`
+
+Create a new campaign.
+
+```json
+{
+  "name":      "string (required)",
+  "platform":  "string (required)",
+  "budget":    "number (required)",
+  "targeting": "object (optional)"
+}
+```
+
+### `nexaads.campaigns.update`
+
+```json
+{ "campaignId": "string (required)", "updates": "object (required)" }
+```
+
+### `nexaads.campaigns.pause`
+
+```json
+{ "campaignId": "string (required)" }
+```
+
+## Reports (live)
+
+### `nexaads.reports.generate`
+
+```json
+{
+  "dateRange": "{ from: string, to: string } (required)",
+  "platforms": "string[] (optional)",
+  "metrics":   "string[] (optional)"
+}
+```
+
+### `nexaads.reports.list`
+
+```json
+{ "limit": "number (optional, default 20)" }
+```
+
+## Budget (live)
+
+### `nexaads.budget.optimize`
+
+AI-driven reallocation across a set of campaigns.
+
+```json
+{
+  "campaignIds": "string[] (optional — all if empty)",
+  "strategy":    "string (optional) — maximize_roas | minimize_cpa | balanced"
+}
+```
+
+## Accounts (live)
+
+### `nexaads.accounts.list` · `nexaads.accounts.connect`
+
+```json
+{ "platform": "string (required) — meta | google | tiktok" }
+```
+
+## Creative (live)
+
+### `nexaads.creative.analyze`
+
+```json
+{
+  "campaignId": "string (required)",
+  "depth":      "string (optional) — quick | detailed"
+}
+```
+
+## Adsets (planned)
+
+- `nexaads.meta.adsets.list`
+- `nexaads.meta.adsets.create`
+- `nexaads.meta.adsets.update`
+- `nexaads.meta.adsets.duplicate`
+- `nexaads.meta.adsets.delete`
+
+## Ads (planned)
+
+- `nexaads.meta.ads.list`
+- `nexaads.meta.ads.create`
+- `nexaads.meta.ads.update`
+- `nexaads.meta.ads.bulk_update`
+- `nexaads.meta.ads.duplicate`
+
+## Creatives (planned)
+
+- `nexaads.meta.creatives.list`
+- `nexaads.meta.creatives.create`
+- `nexaads.meta.creatives.carousel.create`
+- `nexaads.meta.creatives.upload_image`
+- `nexaads.meta.creatives.upload_video`
+- `nexaads.meta.creatives.compute_crops`
+
+## Audiences (planned)
+
+- `nexaads.meta.audiences.list`
+- `nexaads.meta.audiences.custom.create`
+- `nexaads.meta.audiences.lookalike.create`
+- `nexaads.meta.audiences.add_users`
+- `nexaads.meta.audiences.remove_users`
+- `nexaads.meta.audiences.estimate_size`
+
+## Targeting search (planned)
+
+- `nexaads.meta.search.interests`
+- `nexaads.meta.search.behaviors`
+- `nexaads.meta.search.demographics`
+- `nexaads.meta.search.geo_locations`
+- `nexaads.meta.search.pages`
+
+## Insights (planned)
+
+- `nexaads.meta.insights.get`
+- `nexaads.meta.insights.bulk_get`
+- `nexaads.meta.reports.create_email`
+- `nexaads.meta.reports.list_email`
+
+## Lead gen (planned)
+
+- `nexaads.meta.leadgen.forms.list`
+- `nexaads.meta.leadgen.forms.create`
+- `nexaads.meta.leadgen.forms.publish_draft`
+- `nexaads.meta.leadgen.forms.update_status`
+
+## Catalogs & products (planned)
+
+- `nexaads.meta.catalogs.list`
+- `nexaads.meta.product_sets.list`
+
+## Pixels & conversions (planned)
+
+- `nexaads.meta.pixels.list`
+- `nexaads.meta.events.upload_conversions`

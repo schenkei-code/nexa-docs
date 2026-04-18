@@ -1,0 +1,34 @@
+---
+title: SDKs
+description: Official client libraries for JavaScript/TypeScript, Python, and Go.
+---
+
+import { Cards, Callout } from "nextra/components";
+
+# SDKs
+
+<Callout type="info">
+  The SDKs below are scheduled for the v1 public beta. Install commands work
+  against stubbed versions today; real implementations follow the REST shape
+  documented under /api.
+</Callout>
+
+<Cards>
+  <Cards.Card title="JavaScript / TypeScript" href="/sdks/javascript">
+    `@nexa/sdk` · Node 18+, Bun, Edge runtimes.
+  </Cards.Card>
+  <Cards.Card title="Python" href="/sdks/python">
+    `nexa-sdk` · Python 3.10+, sync and async.
+  </Cards.Card>
+  <Cards.Card title="Go" href="/sdks/go">
+    `github.com/nexa/go-sdk` · idiomatic, typed.
+  </Cards.Card>
+</Cards>
+
+## Conventions across SDKs
+
+- Every SDK accepts `{ apiKey, baseUrl, timeout, maxRetries }`.
+- All methods return `{ data, raw, request_id }`. The raw response is there
+  for debugging.
+- Errors subclass a shared `NexaError`. Switch on `error.type` to branch.
+- Automatic retries on `5xx` and `429` with exponential backoff.

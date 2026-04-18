@@ -1,0 +1,41 @@
+---
+title: Create a campaign
+description: End-to-end example of creating and activating a NexaAds campaign.
+---
+
+# Create a campaign
+
+```ts
+import { Nexa } from "@nexa/sdk";
+import { randomUUID } from "node:crypto";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY! });
+
+const campaign = await nexa.ads.campaigns.create(
+  {
+    name: "Spring Sale 2026",
+    platform: "meta",
+    budget: 500,
+    targeting: {
+      countries: ["DE", "AT", "CH"],
+      ages: [25, 45],
+      interests: ["automotive", "ecu_tuning"],
+    },
+  },
+  { idempotencyKey: randomUUID() }
+);
+
+console.log("Created", campaign.id, "→", campaign.dashboard_url);
+```
+
+Then generate a quick sanity report one week later:
+
+```ts
+const report = await nexa.ads.reports.generate({
+  campaign_id: campaign.id,
+  date_range: { from: "2026-04-18", to: "2026-04-25" },
+  metrics: ["impressions", "clicks", "spend", "roas"],
+});
+const result = await nexa.jobs.wait(report.id);
+console.table(result.rows);
+```

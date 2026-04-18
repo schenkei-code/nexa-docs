@@ -1,0 +1,178 @@
+---
+title: Webhooks
+description: Subscribe to events, verify signatures, handle retries with exponential backoff.
+---
+
+import { Callout, Steps, Tabs } from "nextra/components";
+
+# Webhooks
+
+Push beats pull. Subscribe to events and Nexa POSTs to your URL the moment
+something happens — job finished, campaign created, credits topped up, creator
+profile enriched.
+
+## Subscribe
+
+Under **Settings → Webhooks** in any product dashboard:
+
+1. Add your endpoint URL (HTTPS only).
+2. Pick events. `*` subscribes to everything.
+3. Copy the signing secret — you will need it to verify deliveries.
+
+## Event envelope
+
+Every delivery is the same shape. Only `type` and `data` vary.
+
+```json
+{
+  "id": "evt_01HZ...",
+  "type": "image.job.succeeded",
+  "created": 1713441600,
+  "product": "nexacreate",
+  "livemode": true,
+  "api_version": "v1",
+  "data": {
+    "object": {
+      "id": "job_01HZ...",
+      "status": "succeeded",
+      "result": { "url": "https://cdn.nexacreate.com/..." }
+    }
+  },
+  "request_id": "req_01HZ..."
+}
+```
+
+## Event catalogue (v1)
+
+| Product       | Event                           | Fired when                            |
+| ------------- | ------------------------------- | ------------------------------------- |
+| NexaAds       | `campaign.created`              | New campaign (REST or MCP)            |
+| NexaAds       | `campaign.budget_exhausted`     | Daily budget consumed                 |
+| NexaAds       | `report.ready`                  | Async report finished                 |
+| NexaCreate    | `image.job.succeeded`           | Image generation completed            |
+| NexaCreate    | `image.job.failed`              | Image job errored                     |
+| NexaCreate    | `video.job.succeeded`           | Video generation completed            |
+| NexaCreate    | `credits.low`                   | Balance dropped below threshold       |
+| NexaLytics    | `creator.enriched`              | Profile enrichment finished           |
+| NexaLytics    | `media_kit.ready`               | PDF media kit rendered                |
+| NexaVoize     | `voice.synthesis.succeeded`     | TTS job rendered                      |
+| NexaVoize     | `conversation.ended`            | Voice session finished                |
+| *             | `invoice.paid`                  | Billing                               |
+| *             | `api_key.revoked`               | Security                              |
+
+## Verify signatures
+
+Every delivery carries `X-Nexa-Signature` — HMAC-SHA256 of the raw request
+body using your webhook secret, with timestamp protection.
+
+Header format:
+
+```
+X-Nexa-Signature: t=1713441600,v1=ae2c...
+```
+
+Reject if the timestamp is older than 5 minutes, or if the HMAC doesn't match.
+
+<Tabs items={["Node.js", "Python", "Go"]}>
+  <Tabs.Tab>
+
+```ts
+import crypto from "node:crypto";
+
+export function verify(req: { rawBody: Buffer; headers: Record<string,string> }, secret: string) {
+  const header = req.headers["x-nexa-signature"] ?? "";
+  const parts = Object.fromEntries(header.split(",").map(kv => kv.split("=")));
+  const t = Number(parts.t);
+  if (Math.abs(Date.now()/1000 - t) > 300) return false;
+
+  const payload = `${t}.${req.rawBody.toString("utf8")}`;
+  const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  const received = Buffer.from(parts.v1, "hex");
+  const want = Buffer.from(expected, "hex");
+  return received.length === want.length && crypto.timingSafeEqual(received, want);
+}
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import hmac, hashlib, time
+
+def verify(raw_body: bytes, header: str, secret: str) -> bool:
+    parts = dict(kv.split("=") for kv in header.split(","))
+    t = int(parts["t"])
+    if abs(time.time() - t) > 300:
+        return False
+    payload = f"{t}.".encode() + raw_body
+    expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, parts["v1"])
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```go
+import (
+  "crypto/hmac"
+  "crypto/sha256"
+  "encoding/hex"
+  "strconv"
+  "strings"
+  "time"
+)
+
+func Verify(body []byte, header, secret string) bool {
+  parts := map[string]string{}
+  for _, kv := range strings.Split(header, ",") {
+    if k, v, ok := strings.Cut(kv, "="); ok { parts[k] = v }
+  }
+  t, _ := strconv.ParseInt(parts["t"], 10, 64)
+  if abs(time.Now().Unix()-t) > 300 { return false }
+  mac := hmac.New(sha256.New, []byte(secret))
+  mac.Write([]byte(strconv.FormatInt(t,10)+".")); mac.Write(body)
+  want := hex.EncodeToString(mac.Sum(nil))
+  return hmac.Equal([]byte(want), []byte(parts["v1"]))
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Delivery semantics
+
+- **Timeout.** You have 10 seconds to respond `2xx`.
+- **Retries.** On non-`2xx` or timeout we retry with exponential backoff:
+  30s, 2m, 10m, 1h, 6h, 24h, 3d (max 7 attempts).
+- **Ordering.** Not guaranteed — two deliveries for the same resource may
+  arrive out of order. Use `data.object.updated_at` to resolve.
+- **Idempotency.** Deduplicate on `id` (the `evt_...`). We may deliver the
+  same event twice after a retry storm.
+
+<Callout>
+  Respond `200 OK` fast, enqueue the work. If your handler takes >10 s you will
+  get hammered with retries — and the user calls it a bug.
+</Callout>
+
+## Test mode
+
+In sandbox (test keys), webhooks fire for **simulated** jobs that complete in
+~500 ms. Use them in CI.
+
+```bash
+curl https://api.nexacreate.com/v1/webhooks/test \
+  -H "Authorization: Bearer $NEXA_TEST_KEY" \
+  -d '{"event":"image.job.succeeded"}'
+```
+
+## Replay a delivery
+
+From the dashboard → **Webhooks → Event log → Replay**. Useful when your
+handler had a bug and you want to reprocess.
+
+## Security tips
+
+1. Put the secret in a vault, not in code.
+2. Always verify the signature **before** any downstream work.
+3. Rate-limit your own endpoint — a compromised secret shouldn't DoS you.
+4. Rotate the secret yearly (one-click in the dashboard).

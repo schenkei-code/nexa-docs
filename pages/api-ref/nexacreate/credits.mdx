@@ -1,0 +1,41 @@
+---
+title: Credits
+description: Check balance, usage, and top up credits for NexaCreate.
+---
+
+# Credits
+
+## Balance
+
+```
+GET /v1/credits
+```
+
+```json
+{ "balance": 12450, "reserved": 18, "currency": "credits" }
+```
+
+## Usage
+
+```
+GET /v1/credits/usage?from=2026-04-01&to=2026-04-18&group_by=day
+```
+
+## Top up (Stripe)
+
+```
+POST /v1/credits/topup
+```
+
+```json
+{ "amount": 10000, "success_url": "https://…", "cancel_url": "https://…" }
+```
+
+Returns a Stripe Checkout URL. Webhook `credits.topup_succeeded` lands on
+settlement.
+
+## Refund rules
+
+- Failed jobs: automatic, full refund.
+- Canceled jobs: refund of reserved minus work-done.
+- Quality complaints: reviewed within 48 h, manual refund up to 100 %.

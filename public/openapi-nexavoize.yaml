@@ -1,0 +1,74 @@
+openapi: 3.1.0
+info:
+  title: NexaVoize API
+  version: 0.1.0-stub
+  summary: Voice assistant + TTS (XTTS v2 + Claude).
+  description: |
+    Placeholder OpenAPI spec. Real spec lands with the closed beta.
+  contact:
+    name: Dominik Schenkel
+    email: dominikschenkel.business@gmail.com
+    url: https://docs.nexa.one
+servers:
+  - url: https://api.nexavoize.com/v1
+    description: Production
+  - url: https://api.nexavoize.com/v1/sandbox
+    description: Sandbox
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+  schemas:
+    Voice:
+      type: object
+      properties:
+        id: { type: string, example: nv_classic_male }
+        name: { type: string }
+        language: { type: string, example: en }
+        gender: { type: string }
+        cloned: { type: boolean }
+paths:
+  /voice/synthesize:
+    post:
+      summary: Render text to audio
+      responses:
+        "200":
+          description: Audio binary
+  /voice/synthesize/stream:
+    post:
+      summary: Stream TTS audio
+      responses:
+        "200":
+          description: Chunked audio stream
+  /voices:
+    get:
+      summary: List voices
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Clone a voice
+      responses:
+        "202":
+          description: Training started
+  /conversations:
+    post:
+      summary: Open a conversation session
+      responses:
+        "201":
+          description: Session created (includes websocket_url)
+  /assistants:
+    get:
+      summary: List assistants
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create an assistant
+      responses:
+        "201":
+          description: Created

@@ -1,0 +1,25 @@
+{
+  "name": "nexa-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Developer documentation for the Nexa API family (NexaAds, NexaCreate, NexaLytics)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "node scripts/gen-changelog.mjs && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "changelog": "node scripts/gen-changelog.mjs"
+  },
+  "dependencies": {
+    "next": "^15.0.3",
+    "nextra": "^3.2.0",
+    "nextra-theme-docs": "^3.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,59 @@
+---
+title: Connect an agent via MCP
+description: Wire NexaAds into Claude Desktop, Cursor, or any MCP-capable agent.
+---
+
+# Connect an agent via MCP
+
+## Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
+or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "nexaads": {
+      "url": "https://api.nexaads.com/mcp",
+      "transport": "http",
+      "headers": { "Authorization": "Bearer ${env:NEXA_API_KEY}" }
+    }
+  }
+}
+```
+
+Restart Claude. Try: *"List my active Meta campaigns and pause anything with
+ROAS below 1.5."*
+
+## Cursor
+
+Cursor → Settings → MCP → Add server:
+
+```json
+{
+  "url": "https://api.nexaads.com/mcp",
+  "headers": { "Authorization": "Bearer ${env:NEXA_API_KEY}" }
+}
+```
+
+## OpenAI Agents SDK
+
+```ts
+import { Agent, MCPServerStreamableHTTP } from "@openai/agents";
+
+const nexa = new MCPServerStreamableHTTP({
+  url: "https://api.nexaads.com/mcp",
+  headers: { Authorization: `Bearer ${process.env.NEXA_API_KEY}` },
+});
+
+const agent = new Agent({
+  name: "Ads Ops",
+  mcpServers: [nexa],
+});
+```
+
+## What the agent sees
+
+After connecting, the agent receives the tool catalogue from `GET /mcp` and
+can call any of the 60+ Meta and 35+ Google tools. Responses come back as
+structured JSON with a consistent error shape — no platform quirks leak up.

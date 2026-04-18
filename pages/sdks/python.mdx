@@ -1,0 +1,55 @@
+---
+title: Python SDK
+description: Install and use nexa-sdk with sync or async clients.
+---
+
+# Python
+
+## Install
+
+```bash
+pip install nexa-sdk
+# or
+uv add nexa-sdk
+```
+
+## Sync
+
+```python
+from nexa import Nexa
+
+nexa = Nexa(api_key="nex_…")
+campaigns = nexa.ads.campaigns.list(platform="meta")
+print(len(campaigns.data))
+```
+
+## Async
+
+```python
+import asyncio
+from nexa import AsyncNexa
+
+async def main():
+    async with AsyncNexa(api_key="nex_…") as nexa:
+        campaigns = await nexa.ads.campaigns.list(platform="meta")
+        print(len(campaigns.data))
+
+asyncio.run(main())
+```
+
+## Pydantic models
+
+Every response is a typed Pydantic model. Use `.model_dump()` for dicts.
+
+```python
+c = nexa.ads.campaigns.get("cmp_abc")
+assert c.name == "Spring Sale"
+```
+
+## Retries
+
+Retries with exponential backoff are on by default. Tune:
+
+```python
+Nexa(api_key="…", max_retries=5, timeout=60.0)
+```

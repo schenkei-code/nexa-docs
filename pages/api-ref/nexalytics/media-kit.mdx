@@ -1,0 +1,42 @@
+---
+title: Media Kit Generator
+description: Generate a branded, PDF-ready media kit for any creator profile.
+---
+
+# Media Kit Generator
+
+## Generate
+
+```
+POST /v1/media-kits
+```
+
+```json
+{
+  "creator_id": "cr_01HZ…",
+  "template":   "nexa_dark",
+  "sections":   ["hero", "audience", "engagement", "brand_deals", "contact"],
+  "brand":      { "color": "#00ff88", "logo_url": "https://…" }
+}
+```
+
+Returns a job id (same job model as NexaCreate) with
+`result.url` pointing to a signed PDF and HTML preview.
+
+## Templates
+
+| Template        | Look                                           |
+| --------------- | ---------------------------------------------- |
+| `nexa_dark`     | Nexa-family dark, Geist Mono accents           |
+| `nexa_light`    | Light variant                                  |
+| `minimal`       | Black on white, print-safe                     |
+| `bold`          | Full-bleed photography, XXL typography         |
+
+## Custom template
+
+```
+POST /v1/media-kits/templates
+```
+
+Bring your own MDX/React template — we render it server-side with your brand
+tokens.

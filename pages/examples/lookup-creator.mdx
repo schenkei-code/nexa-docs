@@ -1,0 +1,29 @@
+---
+title: Look up a creator
+description: Resolve a handle to a profile and render engagement.
+---
+
+# Look up a creator
+
+```python
+from nexa import Nexa
+
+nexa = Nexa(api_key=os.environ["NEXA_API_KEY"])
+
+profile = nexa.lytics.creators.lookup(handle="schenkei", platform="youtube")
+print(profile.display_name, "·", profile.followers, "followers")
+
+engagement = nexa.lytics.creators.engagement(profile.id, window="30d")
+print("ER median:", engagement.engagement_rate_median)
+```
+
+## Bulk resolve cross-platform
+
+```python
+results = nexa.lytics.creators.bulk([
+    {"handle": "schenkei",   "platform": "youtube"},
+    {"handle": "schenkei_",  "platform": "instagram"},
+])
+for r in results:
+    print(r.handle, r.platform, r.followers)
+```

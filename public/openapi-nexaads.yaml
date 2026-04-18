@@ -1,0 +1,67 @@
+openapi: 3.1.0
+info:
+  title: NexaAds API
+  version: 0.1.0-stub
+  summary: REST + MCP surface for AI-driven ad operations (Meta + Google).
+  description: |
+    Placeholder OpenAPI spec. Real spec is generated from the NexaAds source
+    repo and published here on every release.
+  contact:
+    name: Dominik Schenkel
+    email: dominikschenkel.business@gmail.com
+    url: https://docs.nexa.one
+servers:
+  - url: https://api.nexaads.com/v1
+    description: Production
+  - url: https://api.nexaads.com/v1/sandbox
+    description: Sandbox
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+  schemas:
+    Campaign:
+      type: object
+      properties:
+        id: { type: string, example: cmp_01HZ }
+        name: { type: string }
+        status: { type: string, enum: [draft, active, paused, completed] }
+        budget: { type: number }
+        created_at: { type: string, format: date-time }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            type: { type: string }
+            code: { type: string }
+            message: { type: string }
+            request_id: { type: string }
+paths:
+  /campaigns:
+    get:
+      summary: List campaigns
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create a campaign
+      responses:
+        "201":
+          description: Created
+  /campaigns/{id}:
+    get:
+      summary: Get a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK

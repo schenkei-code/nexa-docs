@@ -1,0 +1,73 @@
+---
+title: NexaVoize API
+description: Voice assistant + TTS for agents, apps, and phone-grade conversations.
+---
+
+import { Callout, Cards } from "nextra/components";
+
+# NexaVoize API
+
+<span className="nexa-product-pill" data-product="voize">NexaVoize</span>
+
+NexaVoize powers real-time voice assistants and high-quality text-to-speech
+synthesis. Built on XTTS v2 for speech synthesis and Claude for conversational
+memory, with sub-300 ms streaming turn-taking.
+
+<Callout type="info">
+  NexaVoize endpoints are live in closed beta. Request access at
+  [nexa.one/voize](https://nexa.one) and a test key drops in your inbox.
+</Callout>
+
+<Cards>
+  <Cards.Card title="Synthesize (TTS)" href="/api-ref/nexavoize/synthesize">
+    Text → MP3/WAV/OGG, streaming or file, 40+ voices.
+  </Cards.Card>
+  <Cards.Card title="Voices" href="/api-ref/nexavoize/voices">
+    Browse the voice catalogue, clone a voice from 15 s of audio.
+  </Cards.Card>
+  <Cards.Card title="Conversations" href="/api-ref/nexavoize/conversations">
+    Live voice-in/voice-out sessions with turn detection.
+  </Cards.Card>
+  <Cards.Card title="Assistants" href="/api-ref/nexavoize/assistants">
+    Persistent voice agents with tools, memory, and personas.
+  </Cards.Card>
+</Cards>
+
+## Base URL
+
+```
+https://api.nexavoize.com/v1
+```
+
+## Common endpoints
+
+| Method | Path                              | Purpose                        |
+| ------ | --------------------------------- | ------------------------------ |
+| POST   | `/v1/voice/synthesize`            | Render text to audio           |
+| POST   | `/v1/voice/synthesize/stream`     | Stream audio as it renders     |
+| GET    | `/v1/voices`                      | List available voices          |
+| POST   | `/v1/voices`                      | Clone a voice                  |
+| POST   | `/v1/conversations`               | Open a live session            |
+| POST   | `/v1/conversations/&#123;id&#125;/audio` | Push user audio              |
+| GET    | `/v1/assistants`                  | List persistent assistants     |
+| POST   | `/v1/assistants`                  | Create assistant with persona  |
+
+## Quickstart
+
+```bash
+curl https://api.nexavoize.com/v1/voice/synthesize \
+  -H "Authorization: Bearer $NEXA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "The best way to predict the future is to invent it.",
+    "voice_id": "nv_classic_male",
+    "format": "mp3"
+  }' \
+  --output speech.mp3
+```
+
+## Latency
+
+Streaming synthesis typically returns the first audio chunk in ~180 ms and
+keeps up with real time (1× speed). For conversational loops keep the same
+WebSocket open instead of reconnecting per turn.

@@ -1,0 +1,91 @@
+---
+title: Synthesize (TTS)
+description: Render text to high-quality audio, streaming or as a file.
+---
+
+import { Tabs, Callout } from "nextra/components";
+
+# Synthesize
+
+`POST /v1/voice/synthesize` — text in, audio out. Supports `mp3`, `wav`, `ogg`,
+and raw `pcm_16000`.
+
+## Request
+
+```json
+{
+  "text": "Hello from NexaVoize.",
+  "voice_id": "nv_classic_male",
+  "format": "mp3",
+  "speed": 1.0,
+  "emotion": "neutral"
+}
+```
+
+| Field       | Type    | Default   | Notes                                                 |
+| ----------- | ------- | --------- | ----------------------------------------------------- |
+| `text`      | string  | required  | Up to 5,000 chars per request                         |
+| `voice_id`  | string  | required  | See `GET /v1/voices`                                  |
+| `format`    | string  | `mp3`     | `mp3` / `wav` / `ogg` / `pcm_16000`                   |
+| `speed`     | number  | `1.0`     | `0.5`–`2.0`                                           |
+| `emotion`   | string  | `neutral` | `neutral` / `happy` / `serious` / `excited` / `sad`   |
+| `language`  | string  | auto      | BCP-47 tag — `en`, `de`, `es`, …                      |
+
+## Response
+
+Binary audio body. Headers tell you what you got:
+
+```
+Content-Type: audio/mpeg
+X-Nexa-Request-Id: req_01HZ...
+X-Nexa-Duration-Ms: 2840
+X-Nexa-Credits-Used: 1
+```
+
+## Streaming
+
+`POST /v1/voice/synthesize/stream` returns a chunked response with the audio
+streamed as it renders. Use this for real-time playback.
+
+<Tabs items={["TypeScript", "Python"]}>
+  <Tabs.Tab>
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY! });
+
+const stream = await nexa.voize.synthesize.stream({
+  text: "Streaming audio, first chunk in ~180 ms.",
+  voice_id: "nv_classic_male",
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk);
+}
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+from nexa import Nexa
+import sys
+
+nexa = Nexa(api_key="nx_sk_test_...")
+
+with nexa.voize.synthesize.stream(
+    text="Streaming audio, first chunk in ~180 ms.",
+    voice_id="nv_classic_male",
+) as stream:
+    for chunk in stream:
+        sys.stdout.buffer.write(chunk)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+<Callout>
+  Streaming counts the same credits as non-streaming. The difference is
+  time-to-first-byte.
+</Callout>

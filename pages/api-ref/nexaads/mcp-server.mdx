@@ -1,0 +1,109 @@
+---
+title: NexaAds MCP Server
+description: Model Context Protocol endpoint for NexaAds — discovery, auth, and tool catalogue.
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# MCP Server
+
+Endpoint: **`https://api.nexaads.com/mcp`** (production) / **`/mcp`** on any
+self-hosted NexaAds deployment.
+
+Protocol: `mcp/1.0`. Transport: HTTP(S) + streamable responses. Authentication:
+bearer token with `mcp` scope.
+
+## Discovery
+
+A `GET /mcp` returns the capabilities manifest. Clients typically call this
+once on connect.
+
+```bash
+curl https://api.nexaads.com/mcp \
+  -H "Authorization: Bearer $NEXA_API_KEY"
+```
+
+```json
+{
+  "server": "NexaAds MCP Server",
+  "version": "1.0.0",
+  "protocol": "mcp/1.0",
+  "capabilities": { "tools": true, "resources": false, "prompts": false },
+  "tools": [ /* see /api/nexaads/tools-meta and /tools-google */ ],
+  "authentication": {
+    "type": "bearer",
+    "description": "API token from the NexaAds dashboard"
+  }
+}
+```
+
+## Connect from Claude Desktop
+
+```json
+{
+  "mcpServers": {
+    "nexaads": {
+      "url": "https://api.nexaads.com/mcp",
+      "transport": "http",
+      "headers": { "Authorization": "Bearer nex_…" }
+    }
+  }
+}
+```
+
+<Callout type="warning">
+  Don't commit tokens. Reference them via env vars in the MCP client config.
+</Callout>
+
+## Tool call shape
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "nexaads.campaigns.list",
+    "arguments": { "platform": "meta", "status": "Aktiv", "limit": 10 }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "content": [
+    {
+      "type": "json",
+      "data": { "campaigns": [ /* … */ ], "total": 42 }
+    }
+  ]
+}
+```
+
+## Error shape (MCP)
+
+MCP errors follow the JSON-RPC envelope but the `data` field embeds the REST
+error object so your logs stay consistent across surfaces.
+
+```json
+{
+  "error": {
+    "code": -32000,
+    "message": "Rate limit exceeded",
+    "data": {
+      "type": "rate_limit_error",
+      "retry_after": 17,
+      "request_id": "req_01HYXX…"
+    }
+  }
+}
+```
+
+## Catalogue
+
+- [Meta Tools (60+)](/api-ref/nexaads/tools-meta)
+- [Google Tools (35+)](/api-ref/nexaads/tools-google)
+
+The catalogue is generated from `src/app/api/mcp/route.ts` in the
+[NexaAds repo](https://github.com/schenkei/NexaAds). Pages rebuild when the
+source changes.

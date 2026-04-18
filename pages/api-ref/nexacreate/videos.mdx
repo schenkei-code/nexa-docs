@@ -1,0 +1,70 @@
+---
+title: Videos
+description: Text-to-video, image-to-video, lipsync, cinematic generation.
+---
+
+import { Callout } from "nextra/components";
+
+# Videos
+
+## Generate
+
+```
+POST /v1/videos
+```
+
+Body:
+
+```json
+{
+  "preset": "video.cinematic",
+  "prompt": "Slow push-in on a vintage Mercedes W124, rain on asphalt, neon reflections",
+  "duration_seconds": 8,
+  "aspect_ratio": "16:9",
+  "fps": 24
+}
+```
+
+Response: `202` + job id. Use [`/api/nexacreate/jobs`](/api-ref/nexacreate/jobs)
+to poll or subscribe.
+
+## Image-to-video
+
+```json
+{
+  "preset": "video.fast",
+  "reference_url": "https://cdn.example.com/still.jpg",
+  "motion_prompt": "Handheld pan to the right",
+  "duration_seconds": 5
+}
+```
+
+## Lipsync
+
+```
+POST /v1/videos/lipsync
+```
+
+```json
+{
+  "face_url":  "https://…/face.jpg",
+  "audio_url": "https://…/voice.mp3",
+  "style":     "natural"
+}
+```
+
+<Callout type="warning">
+  Lipsync requires rights to both the face and the audio. NexaCreate
+  watermarks outputs when consent metadata is missing.
+</Callout>
+
+## Pricing signals
+
+| Preset              | Typical credits/sec | Typical latency |
+| ------------------- | -------------------- | --------------- |
+| `video.fast`        | 2                    | 20–40 s         |
+| `video.cinematic`   | 5                    | 60–180 s        |
+| `video.lipsync`     | 3                    | 40–90 s         |
+
+Actual credits are always computed from `duration_seconds × preset` plus
+resolution adjustments and returned on the job result.

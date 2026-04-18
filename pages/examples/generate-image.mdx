@@ -1,0 +1,32 @@
+---
+title: Generate an image
+description: Submit an image job and wait for the result.
+---
+
+# Generate an image
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY! });
+
+const job = await nexa.create.images.generate({
+  preset: "image.quality",
+  prompt: "A cinematic shot of a vintage Mercedes W124 on wet asphalt, neon reflections",
+  aspectRatio: "16:9",
+  numOutputs: 2,
+});
+
+const result = await nexa.jobs.wait(job.id);
+for (const out of result.outputs) {
+  console.log(out.url, out.width, "x", out.height);
+}
+```
+
+Prefer webhooks over polling in production:
+
+```ts
+// Subscribe once, then fire-and-forget your jobs:
+await nexa.create.images.generate({ /* … */ });
+// Your webhook endpoint receives job.succeeded with the result payload.
+```

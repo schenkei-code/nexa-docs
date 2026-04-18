@@ -1,0 +1,32 @@
+---
+title: NexaLytics API
+description: Creator profile lookup, media-kit generation, analytics for the creator economy.
+---
+
+import { Cards } from "nextra/components";
+
+# NexaLytics API
+
+<span className="nexa-product-pill" data-product="lytics">NexaLytics</span>
+
+<Cards>
+  <Cards.Card title="Creators" href="/api-ref/nexalytics/creators">
+    Lookup profiles across YouTube, TikTok, Instagram, X.
+  </Cards.Card>
+  <Cards.Card title="Media Kit" href="/api-ref/nexalytics/media-kit">
+    Auto-generate branded, PDF-ready media kits.
+  </Cards.Card>
+  <Cards.Card title="Analytics" href="/api-ref/nexalytics/analytics">
+    Engagement, audience demographics, brand-safety scores.
+  </Cards.Card>
+</Cards>
+
+## Data sources
+
+NexaLytics blends official platform APIs with first-party scraping agents
+(opted in by the creator) and enriches with third-party demographic data.
+Every data point carries a provenance tag on response.
+
+## Auth
+
+Same as the rest of the family — bearer token with `read` or `write`.

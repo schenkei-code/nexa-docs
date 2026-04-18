@@ -1,0 +1,119 @@
+---
+title: Images
+description: Text-to-image, image-to-image, upscale, background removal.
+---
+
+import { Tabs, Callout } from "nextra/components";
+
+# Images
+
+## Generate
+
+```
+POST /v1/images
+```
+
+Body:
+
+```json
+{
+  "preset": "image.quality",
+  "prompt": "A moody cinematic portrait of an ECU tuner in a dark garage, neon green accents",
+  "negative_prompt": "low quality, watermark, text",
+  "aspect_ratio": "16:9",
+  "num_outputs": 2,
+  "seed": 42
+}
+```
+
+Response:
+
+```json
+{
+  "id": "job_img_01HZ…",
+  "status": "queued",
+  "estimated_seconds": 18,
+  "credits_reserved": 4
+}
+```
+
+<Tabs items={["cURL", "TypeScript", "Python"]}>
+  <Tabs.Tab>
+
+```bash
+curl -X POST https://api.nexacreate.com/v1/images \
+  -H "Authorization: Bearer $NEXA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"preset":"image.quality","prompt":"cinematic ECU tuner","aspect_ratio":"16:9"}'
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```ts
+const job = await nexa.create.images.generate({
+  preset: "image.quality",
+  prompt: "cinematic ECU tuner",
+  aspectRatio: "16:9",
+});
+const result = await nexa.jobs.wait(job.id);
+console.log(result.outputs[0].url);
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+job = nexa.create.images.generate(
+    preset="image.quality",
+    prompt="cinematic ECU tuner",
+    aspect_ratio="16:9",
+)
+result = nexa.jobs.wait(job.id)
+print(result.outputs[0].url)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Image-to-image
+
+```
+POST /v1/images
+```
+
+Provide a reference:
+
+```json
+{
+  "preset": "image.quality",
+  "prompt": "Same subject, golden-hour lighting, cinematic",
+  "reference_url": "https://cdn.example.com/original.jpg",
+  "strength": 0.6
+}
+```
+
+## Upscale
+
+```
+POST /v1/images/upscale
+```
+
+```json
+{ "url": "https://…/input.jpg", "scale": 4 }
+```
+
+## Background removal
+
+```
+POST /v1/images/remove-bg
+```
+
+```json
+{ "url": "https://…/input.jpg", "edge": "clean" }
+```
+
+<Callout>
+  Upscale and remove-bg are synchronous for inputs &lt; 8 MP. Above that they
+  queue as regular jobs.
+</Callout>

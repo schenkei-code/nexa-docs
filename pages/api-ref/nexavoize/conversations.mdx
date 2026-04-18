@@ -1,0 +1,61 @@
+---
+title: Conversations
+description: Live voice-in / voice-out sessions with built-in turn detection.
+---
+
+# Conversations
+
+Open a session, stream user audio in, receive assistant audio out. Turn
+detection, interruption handling, and transcript are built in.
+
+## Open a session
+
+`POST /v1/conversations`
+
+```json
+{
+  "assistant_id": "asst_01HZ...",
+  "voice_id": "nv_classic_male",
+  "language": "en"
+}
+```
+
+Response:
+
+```json
+{
+  "id": "conv_01HZ...",
+  "websocket_url": "wss://rt.nexavoize.com/v1/conversations/conv_01HZ...",
+  "expires_at": 1713445200
+}
+```
+
+## WebSocket protocol
+
+Connect with the websocket URL; authenticate with
+`Authorization: Bearer $NEXA_API_KEY` as a header. Messages are JSON frames.
+
+### Client → server
+
+```json
+{ "type": "audio.input", "audio": "<base64 PCM 16kHz mono>" }
+{ "type": "audio.input.end" }
+{ "type": "text.input", "text": "Switch to German please." }
+{ "type": "session.interrupt" }
+```
+
+### Server → client
+
+```json
+{ "type": "turn.start", "role": "assistant" }
+{ "type": "audio.output", "audio": "<base64 PCM 16kHz>" }
+{ "type": "transcript", "role": "user", "text": "How is the weather?" }
+{ "type": "transcript", "role": "assistant", "text": "Clear, 22 C." }
+{ "type": "turn.end", "role": "assistant" }
+{ "type": "error", "error": { "type": "...", "message": "..." } }
+```
+
+## Close a session
+
+Either side closes the WebSocket. Server emits `conversation.ended` webhook
+with the full transcript.

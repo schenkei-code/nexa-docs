@@ -1,0 +1,173 @@
+---
+title: Quickstart
+description: Your first Nexa API call in under 5 minutes.
+---
+
+import { Callout, Steps, Tabs } from "nextra/components";
+
+# Quickstart
+
+Ship your first Nexa API call in under 5 minutes. This guide uses NexaCreate
+(image generation) because it has the fastest visual payoff, but every product
+follows the same pattern.
+
+<Steps>
+
+### Create an account
+
+Sign up at [nexa.one](https://nexa.one) with an email + password or SSO. You
+get free sandbox credits immediately — no card required.
+
+### Grab an API key
+
+In the dashboard, open **Settings → API Tokens → New token**. Pick a scope:
+
+- `read` — GET only.
+- `write` — POST / PATCH / DELETE your own resources.
+- `mcp` — connect an MCP client (Claude, Cursor, …).
+
+Test keys start with `nx_sk_test_...` and only work against sandbox URLs. Live
+keys start with `nx_sk_live_...`.
+
+<Callout type="warning">
+  Treat keys like passwords. Put them in env vars, never commit them to git.
+</Callout>
+
+### Install an SDK (optional but nice)
+
+<Tabs items={["TypeScript", "Python", "Go", "cURL"]}>
+  <Tabs.Tab>
+
+```bash
+npm install @nexa/sdk
+# or: pnpm add @nexa/sdk / bun add @nexa/sdk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+pip install nexa-sdk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+go get github.com/nexa/go-sdk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+No install needed — cURL works against every endpoint.
+
+  </Tabs.Tab>
+</Tabs>
+
+### Make your first call
+
+Generate an image. This returns a job that completes in 2–5 seconds.
+
+<Tabs items={["TypeScript", "Python", "cURL"]}>
+  <Tabs.Tab>
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY! });
+
+const { id } = await nexa.create.images.generate({
+  prompt: "A violet-to-blue gradient aurora over a cyberpunk city, cinematic",
+  aspect_ratio: "16:9",
+  preset: "image.quality",
+});
+
+// Poll (or subscribe via webhook — see /webhooks)
+const result = await nexa.jobs.wait(id);
+console.log(result.url);
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import os
+from nexa import Nexa
+
+nexa = Nexa(api_key=os.environ["NEXA_API_KEY"])
+
+job = nexa.create.images.generate(
+    prompt="A violet-to-blue gradient aurora over a cyberpunk city, cinematic",
+    aspect_ratio="16:9",
+    preset="image.quality",
+)
+
+result = nexa.jobs.wait(job.id)
+print(result.url)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+# Kick off a job
+JOB=$(curl -s https://api.nexacreate.com/v1/images \
+  -H "Authorization: Bearer $NEXA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A violet-to-blue gradient aurora over a cyberpunk city, cinematic",
+    "aspect_ratio": "16:9",
+    "preset": "image.quality"
+  }' | jq -r '.id')
+
+# Poll until ready
+while true; do
+  STATUS=$(curl -s "https://api.nexacreate.com/v1/jobs/$JOB" \
+    -H "Authorization: Bearer $NEXA_API_KEY")
+  echo "$STATUS" | jq .
+  [ "$(echo "$STATUS" | jq -r .status)" = "succeeded" ] && break
+  sleep 1
+done
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+### Check the response
+
+On success you get:
+
+```json
+{
+  "id": "job_01HZ...",
+  "status": "succeeded",
+  "result": {
+    "url": "https://cdn.nexacreate.com/outputs/…/image.png",
+    "width": 1920,
+    "height": 1080,
+    "seed": 842197,
+    "credits_used": 1
+  },
+  "request_id": "req_01HZ..."
+}
+```
+
+</Steps>
+
+## What next?
+
+- **Production auth flow.** Read [Authentication](/auth) for scopes, rotation,
+  and using `nexa-auth` for end-user sign-in.
+- **Other products.** Jump to [NexaAds](/api-ref/nexaads/overview),
+  [NexaLytics](/api-ref/nexalytics/overview), or
+  [NexaVoize](/api-ref/nexavoize/overview).
+- **Agents.** Point Claude or Cursor at the [MCP server](/api-ref/nexaads/mcp-server)
+  and manage ads in chat.
+- **Async jobs, right.** Subscribe to [webhooks](/webhooks) instead of polling.
+
+<Callout type="info">
+  Stuck? Open an issue on
+  [github.com/schenkei-code/nexa-docs](https://github.com/schenkei-code/nexa-docs/issues)
+  or email `dominikschenkel.business@gmail.com`.
+</Callout>

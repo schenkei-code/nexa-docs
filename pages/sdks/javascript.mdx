@@ -1,0 +1,91 @@
+---
+title: JavaScript / TypeScript SDK
+description: Install and use @nexa/sdk from Node, Bun, or Edge runtimes.
+---
+
+import { Tabs } from "nextra/components";
+
+# JavaScript / TypeScript
+
+## Install
+
+<Tabs items={["npm", "pnpm", "bun", "yarn"]}>
+  <Tabs.Tab>
+
+```bash
+npm install @nexa/sdk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+pnpm add @nexa/sdk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+bun add @nexa/sdk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+yarn add @nexa/sdk
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quickstart
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY! });
+
+const campaigns = await nexa.ads.campaigns.list({ platform: "meta" });
+console.log(campaigns.data.length);
+```
+
+## Options
+
+```ts
+new Nexa({
+  apiKey: "nex_…",
+  baseUrl: "https://api.nexaads.com/v1", // per product
+  timeout: 30_000,
+  maxRetries: 3,
+  fetch: customFetch, // optional, must match WHATWG fetch
+});
+```
+
+## Streaming (NexaCreate jobs)
+
+```ts
+for await (const update of nexa.create.jobs.stream(jobId)) {
+  console.log(update.status, update.progress);
+}
+```
+
+## Webhook verification
+
+```ts
+import { verifyWebhook } from "@nexa/sdk/webhooks";
+
+export async function POST(req: Request) {
+  const raw = await req.text();
+  const sig = req.headers.get("x-nexa-signature")!;
+  verifyWebhook(raw, sig, process.env.NEXA_WEBHOOK_SECRET!);
+  const event = JSON.parse(raw);
+  // handle event…
+}
+```
+
+## Edge compatibility
+
+Works on Vercel Edge, Cloudflare Workers, Deno Deploy. Pass a custom `fetch`
+if your runtime requires it.

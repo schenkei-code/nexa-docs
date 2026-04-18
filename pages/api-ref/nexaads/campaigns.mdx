@@ -1,0 +1,103 @@
+---
+title: Campaigns REST
+description: Classic REST endpoints for managing campaigns on NexaAds.
+---
+
+import { Tabs, Callout } from "nextra/components";
+
+# Campaigns · REST
+
+Base path: `/v1/campaigns`. All endpoints require a token with `read` (list/get)
+or `write` (mutate) scope.
+
+## List
+
+```
+GET /v1/campaigns
+```
+
+Query params:
+
+| Name       | Type   | Default | Notes                                       |
+| ---------- | ------ | ------- | ------------------------------------------- |
+| `platform` | string | —       | `meta` \| `google` \| `tiktok`              |
+| `status`   | string | —       | `active` \| `paused` \| `draft` \| `ended`  |
+| `limit`    | number | 25      | max 100                                     |
+| `cursor`   | string | —       | pagination cursor                           |
+
+<Tabs items={["cURL", "TypeScript"]}>
+  <Tabs.Tab>
+
+```bash
+curl "https://api.nexaads.com/v1/campaigns?platform=meta&status=active&limit=10" \
+  -H "Authorization: Bearer $NEXA_API_KEY"
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({ apiKey: process.env.NEXA_API_KEY });
+const { data, has_more, next_cursor } = await nexa.ads.campaigns.list({
+  platform: "meta",
+  status: "active",
+  limit: 10,
+});
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Get
+
+```
+GET /v1/campaigns/{id}
+```
+
+## Create
+
+```
+POST /v1/campaigns
+```
+
+Body:
+
+```json
+{
+  "name": "Spring Sale 2026",
+  "platform": "meta",
+  "budget": 500,
+  "targeting": {
+    "countries": ["DE", "AT", "CH"],
+    "ages": [25, 45],
+    "interests": ["automotive", "ecu_tuning"]
+  }
+}
+```
+
+<Callout type="warning">
+  Always send `Idempotency-Key` on POST — campaign creation is expensive to undo.
+</Callout>
+
+## Update
+
+```
+PATCH /v1/campaigns/{id}
+```
+
+## Pause / Resume
+
+```
+POST /v1/campaigns/{id}/pause
+POST /v1/campaigns/{id}/resume
+```
+
+## Delete
+
+```
+DELETE /v1/campaigns/{id}
+```
+
+Deletion is soft — campaigns stay for 30 days for audit, then vanish.

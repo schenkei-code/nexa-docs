@@ -1,0 +1,198 @@
+---
+title: Authentication
+description: How tokens, scopes, and the shared nexa-auth identity layer work across every Nexa product.
+---
+
+import { Callout, Steps, Tabs } from "nextra/components";
+
+# Authentication
+
+Every Nexa product authenticates the same way. One account, one set of tokens,
+one auth layer — [`nexa-auth`](https://github.com/schenkei-code/nexa-auth).
+
+## Two modes
+
+<Tabs items={["Machine-to-machine (API keys)", "End-user (OAuth)"]}>
+  <Tabs.Tab>
+
+### API keys
+
+For your own backend calling a Nexa API. Create tokens under
+**Settings → API Tokens** in any dashboard — they work across every product.
+
+```bash
+curl https://api.nexaads.com/v1/campaigns \
+  -H "Authorization: Bearer $NEXA_API_KEY"
+```
+
+Keys have a prefix that tells you everything:
+
+| Prefix           | Environment | Scope                                  |
+| ---------------- | ----------- | -------------------------------------- |
+| `nx_sk_live_...` | Production  | Real data, real credits                |
+| `nx_sk_test_...` | Sandbox     | Mock data, no credits consumed         |
+| `nx_pk_live_...` | Production  | Publishable (front-end, `read` only)   |
+
+<Callout type="warning">
+  Publishable keys (`nx_pk_`) are the only safe-to-embed kind. Every other
+  prefix belongs on your server.
+</Callout>
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### OAuth 2.1 (nexa-auth)
+
+For building apps where users sign in with their own Nexa account — typical
+case: agencies connecting their customers' NexaAds workspace.
+
+Endpoint: `https://auth.nexa.one`
+
+Flow: Authorization Code with PKCE, following OAuth 2.1 + RFC 8628 (device
+flow) for CLIs.
+
+```
+https://auth.nexa.one/oauth/authorize
+  ?client_id=YOUR_CLIENT_ID
+  &redirect_uri=https://yourapp.com/callback
+  &response_type=code
+  &scope=ads:read%20ads:write%20create:read
+  &code_challenge=...
+  &code_challenge_method=S256
+  &state=XYZ
+```
+
+The callback gives you an authorization code; exchange it at `/oauth/token`
+for an access token + refresh token.
+
+  </Tabs.Tab>
+</Tabs>
+
+## Scopes
+
+Scopes are **product-prefixed** and **additive**. A token only does what its
+scopes allow.
+
+| Scope                 | Grants                                         |
+| --------------------- | ---------------------------------------------- |
+| `ads:read`            | GET on NexaAds                                 |
+| `ads:write`           | POST / PATCH / DELETE on NexaAds               |
+| `ads:mcp`             | Connect to the NexaAds MCP server              |
+| `create:read`         | GET on NexaCreate                              |
+| `create:write`        | Generate images / videos                       |
+| `lytics:read`         | GET on NexaLytics (creator lookups, analytics) |
+| `lytics:write`        | Media-kit generation, enrichment jobs          |
+| `voize:read`          | Read conversations, voices                     |
+| `voize:write`         | Synthesize, create voices, manage assistants   |
+| `billing:read`        | Credits, invoices, usage                       |
+| `admin`               | Team, webhooks, API-token management           |
+
+<Callout>
+  `admin` does **not** imply `ads:write` or any other scope. Grant scopes
+  explicitly — principle of least privilege.
+</Callout>
+
+## Using a token
+
+Send it as `Authorization: Bearer <token>` on every request.
+
+<Tabs items={["TypeScript", "Python", "cURL"]}>
+  <Tabs.Tab>
+
+```ts
+import { Nexa } from "@nexa/sdk";
+
+const nexa = new Nexa({
+  apiKey: process.env.NEXA_API_KEY!,
+  // Optional per-product overrides:
+  baseUrls: {
+    ads: "https://api.nexaads.com/v1",
+    create: "https://api.nexacreate.com/v1",
+  },
+});
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import os
+from nexa import Nexa
+
+nexa = Nexa(api_key=os.environ["NEXA_API_KEY"])
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash
+export NEXA_API_KEY="nx_sk_test_..."
+curl https://api.nexaads.com/v1/campaigns \
+  -H "Authorization: Bearer $NEXA_API_KEY"
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Token rotation
+
+<Steps>
+
+### Create the new token
+
+Under **Settings → API Tokens → New token**, with the same scopes.
+
+### Deploy it
+
+Roll out the new key to your environment. Both keys are valid simultaneously.
+
+### Revoke the old token
+
+Click **Revoke** on the old token. Traffic on that key now returns `401`.
+
+### Watch the request log
+
+The dashboard shows traffic per token — confirm zero calls on the revoked
+key before closing the window.
+
+</Steps>
+
+<Callout type="info">
+  Rotate every 90 days as a rule. `nexa-auth` will remind you in the dashboard.
+</Callout>
+
+## Errors
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "invalid_api_key",
+    "message": "The API key provided is invalid or revoked.",
+    "request_id": "req_01HZ..."
+  }
+}
+```
+
+| HTTP | Type                   | Meaning                                    |
+| ---- | ---------------------- | ------------------------------------------ |
+| 401  | `authentication_error` | No token / malformed / revoked             |
+| 403  | `permission_error`     | Token missing the required scope           |
+| 403  | `permission_error`     | Token valid but resource belongs elsewhere |
+
+## Anatomy of a request
+
+```http
+POST /v1/campaigns HTTP/2
+Host: api.nexaads.com
+Authorization: Bearer nx_sk_live_01HZ...
+Content-Type: application/json
+Idempotency-Key: 3f1b2b8c-…
+User-Agent: my-service/1.4.0 (+https://yourapp.com)
+
+{"name":"Spring Sale","budget":500}
+```
+
+Every header except `Authorization` and `Content-Type` is optional — but
+`Idempotency-Key` and `User-Agent` make debugging considerably nicer. See
+[API Overview](/api-ref/overview) for the full list.

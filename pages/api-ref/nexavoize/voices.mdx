@@ -1,0 +1,52 @@
+---
+title: Voices
+description: Browse the voice catalogue or clone your own from 15 seconds of audio.
+---
+
+# Voices
+
+## List voices
+
+`GET /v1/voices`
+
+```bash
+curl https://api.nexavoize.com/v1/voices \
+  -H "Authorization: Bearer $NEXA_API_KEY"
+```
+
+```json
+{
+  "data": [
+    {
+      "id": "nv_classic_male",
+      "name": "Alex (Classic Male)",
+      "language": "en",
+      "gender": "male",
+      "style": ["narration", "calm"],
+      "preview_url": "https://cdn.nexavoize.com/previews/nv_classic_male.mp3",
+      "cloned": false
+    }
+  ],
+  "has_more": false
+}
+```
+
+## Clone a voice
+
+`POST /v1/voices` — upload 15–60 s of clean reference audio.
+
+```bash
+curl https://api.nexavoize.com/v1/voices \
+  -H "Authorization: Bearer $NEXA_API_KEY" \
+  -F "name=My Brand Voice" \
+  -F "sample=@./sample.wav" \
+  -F "language=en"
+```
+
+Returns immediately with `status: "training"`. Poll `GET /v1/voices/{id}` or
+subscribe to `voice.training.succeeded` via webhook.
+
+## Delete a voice
+
+`DELETE /v1/voices/{id}` — only cloned voices can be deleted. Catalogue voices
+are shared.

@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: NexaLytics API
+  version: 0.1.0-stub
+  summary: Creator profile lookup, media-kit generation, analytics.
+  description: |
+    Placeholder OpenAPI spec. Real spec is generated from the NexaLytics
+    backend and published on every release.
+  contact:
+    name: Dominik Schenkel
+    email: dominikschenkel.business@gmail.com
+    url: https://docs.nexa.one
+servers:
+  - url: https://api.nexalytics.com/v1
+    description: Production
+  - url: https://api.nexalytics.com/v1/sandbox
+    description: Sandbox
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+  schemas:
+    Creator:
+      type: object
+      properties:
+        handle: { type: string, example: "@schenkei" }
+        platform: { type: string, enum: [youtube, tiktok, instagram, x] }
+        followers: { type: integer }
+        engagement_rate: { type: number }
+paths:
+  /creators/{handle}:
+    get:
+      summary: Look up a creator profile
+      parameters:
+        - name: handle
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+  /analytics:
+    get:
+      summary: Aggregate analytics
+      responses:
+        "200":
+          description: OK
+  /media-kits:
+    post:
+      summary: Generate a media kit
+      responses:
+        "202":
+          description: Job accepted

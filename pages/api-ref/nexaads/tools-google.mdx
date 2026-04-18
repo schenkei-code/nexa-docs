@@ -1,0 +1,81 @@
+---
+title: Google Tools
+description: 35+ MCP tools for Google Ads — campaigns, keywords, insights, assets.
+---
+
+import { Callout } from "nextra/components";
+
+# Google Tools (35+)
+
+<span className="nexa-product-pill" data-product="ads">NexaAds · MCP</span>
+
+Google-side tools sit under the `nexaads.google.*` namespace. They wrap the
+Google Ads API v17 and share NexaAds auth/quota handling.
+
+<Callout type="info">
+  The Google surface is planned but pre-registered: calling `GET /mcp` already
+  returns these tool names so agents can plan around the full roadmap.
+</Callout>
+
+## Accounts
+
+- `nexaads.google.accounts.list`
+- `nexaads.google.accounts.connect`
+- `nexaads.google.accounts.invite_mcc`
+
+## Campaigns
+
+- `nexaads.google.campaigns.list`
+- `nexaads.google.campaigns.create`
+- `nexaads.google.campaigns.update`
+- `nexaads.google.campaigns.pause`
+- `nexaads.google.campaigns.enable`
+- `nexaads.google.campaigns.duplicate`
+
+## Ad groups
+
+- `nexaads.google.adgroups.list`
+- `nexaads.google.adgroups.create`
+- `nexaads.google.adgroups.update`
+- `nexaads.google.adgroups.duplicate`
+
+## Ads
+
+- `nexaads.google.ads.list`
+- `nexaads.google.ads.create_responsive_search`
+- `nexaads.google.ads.create_performance_max`
+- `nexaads.google.ads.update`
+- `nexaads.google.ads.remove`
+
+## Keywords
+
+- `nexaads.google.keywords.list`
+- `nexaads.google.keywords.add`
+- `nexaads.google.keywords.remove`
+- `nexaads.google.keywords.update_match_type`
+- `nexaads.google.keywords.negative.add`
+- `nexaads.google.keywords.plan.forecast`
+- `nexaads.google.keywords.plan.ideas`
+
+## Assets
+
+- `nexaads.google.assets.images.upload`
+- `nexaads.google.assets.videos.upload`
+- `nexaads.google.assets.sitelinks.create`
+- `nexaads.google.assets.callouts.create`
+- `nexaads.google.assets.structured_snippets.create`
+
+## Audiences
+
+- `nexaads.google.audiences.list`
+- `nexaads.google.audiences.customer_match.create`
+- `nexaads.google.audiences.customer_match.upload_users`
+- `nexaads.google.audiences.similar.create`
+
+## Reports & insights
+
+- `nexaads.google.insights.query` — raw GAQL
+- `nexaads.google.insights.performance`
+- `nexaads.google.insights.search_terms`
+- `nexaads.google.insights.auction`
+- `nexaads.google.conversions.upload_offline`

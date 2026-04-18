@@ -1,0 +1,163 @@
+---
+title: API Overview
+description: Authentication, rate limits, versioning and error format shared across all Nexa APIs.
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# API Overview
+
+All Nexa APIs share a single surface. Once you know how one responds, you know
+how all of them respond.
+
+## Base URLs
+
+| Product    | Production                          | Sandbox                                     |
+| ---------- | ----------------------------------- | ------------------------------------------- |
+| NexaAds    | `https://api.nexaads.com/v1`        | `https://api.nexaads.com/v1/sandbox`        |
+| NexaCreate | `https://api.nexacreate.com/v1`     | `https://api.nexacreate.com/v1/sandbox`     |
+| NexaLytics | `https://api.nexalytics.com/v1`     | `https://api.nexalytics.com/v1/sandbox`     |
+
+<Callout type="warning">
+  `sandbox` returns deterministic mock data and never charges credits. Use it
+  for CI.
+</Callout>
+
+## Authentication
+
+Bearer tokens in the `Authorization` header. Create tokens in the respective
+product dashboard under **Settings → API Tokens**.
+
+<Tabs items={["cURL", "JavaScript", "Python"]}>
+  <Tabs.Tab>
+
+```bash
+curl https://api.nexaads.com/v1/campaigns \
+  -H "Authorization: Bearer $NEXA_API_KEY"
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```ts
+const res = await fetch("https://api.nexaads.com/v1/campaigns", {
+  headers: { Authorization: `Bearer ${process.env.NEXA_API_KEY}` },
+});
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import os, httpx
+r = httpx.get(
+    "https://api.nexaads.com/v1/campaigns",
+    headers={"Authorization": f"Bearer {os.environ['NEXA_API_KEY']}"},
+)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+### Token scopes
+
+| Scope           | Grants                                  |
+| --------------- | --------------------------------------- |
+| `read`          | GET on every resource you own           |
+| `write`         | POST/PATCH/DELETE on your own resources |
+| `mcp`           | Connect to the MCP server               |
+| `admin`         | Team management, billing, webhooks      |
+
+Scopes are additive. `admin` does **not** imply `write` — be explicit.
+
+## Rate limits
+
+Per-token, rolling 60 second window.
+
+| Tier    | Requests/min | Burst | Concurrent jobs |
+| ------- | ------------ | ----- | --------------- |
+| Free    | 60           | 15    | 1               |
+| Pro     | 600          | 120   | 8               |
+| Scale   | 6000         | 1200  | 64              |
+| Custom  | negotiated   | —     | —               |
+
+Response headers:
+
+```
+X-RateLimit-Limit: 600
+X-RateLimit-Remaining: 428
+X-RateLimit-Reset: 1713440000
+```
+
+When you exceed the window you get `429 Too Many Requests` with a `Retry-After`
+header in seconds. Back off, don't hammer.
+
+## Versioning
+
+- Path-based: `/v1`, `/v2`. We never break within a major.
+- New fields on responses are additive. Ignore fields you don't know.
+- Deprecations land in the [Changelog](/changelog) at least 90 days before
+  removal.
+
+## Error format
+
+Every error is the same shape:
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "campaign_not_found",
+    "message": "Campaign cmp_abc123 does not exist or you do not have access.",
+    "param": "campaign_id",
+    "request_id": "req_01HYXX…"
+  }
+}
+```
+
+Always log `request_id` — it's what support needs to trace your call.
+
+### Common error types
+
+| Type                     | When                                   | HTTP |
+| ------------------------ | -------------------------------------- | ---- |
+| `authentication_error`   | Missing / invalid token                | 401  |
+| `permission_error`       | Token lacks scope or resource access   | 403  |
+| `invalid_request_error`  | Bad input, validation failed           | 400  |
+| `rate_limit_error`       | Too many requests                      | 429  |
+| `api_error`              | Our fault                              | 5xx  |
+
+## Idempotency
+
+For unsafe methods (POST, PATCH, DELETE), send an `Idempotency-Key` header. We
+cache the response for 24 h, so a retry with the same key returns the same
+response — no duplicate campaigns, no double charges.
+
+```bash
+curl -X POST https://api.nexaads.com/v1/campaigns \
+  -H "Authorization: Bearer $NEXA_API_KEY" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Spring Sale","budget":500}'
+```
+
+## Pagination
+
+Cursor-based. List endpoints return:
+
+```json
+{
+  "data": [ /* … */ ],
+  "has_more": true,
+  "next_cursor": "cur_01HZ…"
+}
+```
+
+Pass `?cursor=cur_01HZ…` on the next call. Default page size is 25, max 100 via
+`?limit=`.
+
+## Webhooks
+
+Subscribe to events under **Settings → Webhooks**. Every event is signed with
+`X-Nexa-Signature` (HMAC-SHA256 of the raw body with your webhook secret).
+Verify before you trust.

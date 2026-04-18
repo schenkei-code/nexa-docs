@@ -1,0 +1,47 @@
+---
+title: Analytics
+description: Engagement, audience demographics, brand-safety signals.
+---
+
+# Analytics
+
+## Engagement
+
+```
+GET /v1/creators/{id}/engagement?window=30d
+```
+
+```json
+{
+  "window": "30d",
+  "posts": 18,
+  "likes_median": 4200,
+  "comments_median": 120,
+  "engagement_rate_median": 0.054,
+  "engagement_rate_mean": 0.061,
+  "by_post_type": {
+    "reel":  { "engagement_rate_median": 0.072 },
+    "image": { "engagement_rate_median": 0.041 },
+    "story": null
+  }
+}
+```
+
+## Audience
+
+```
+GET /v1/creators/{id}/audience
+```
+
+Returns age buckets, gender distribution, top countries, top languages — each
+with a `confidence` score.
+
+## Brand safety
+
+```
+GET /v1/creators/{id}/safety
+```
+
+Returns a composite score 0–100 plus per-category flags (profanity, nsfw,
+political, controversy). Flags come with the last three offending post ids so
+you can inspect yourself.

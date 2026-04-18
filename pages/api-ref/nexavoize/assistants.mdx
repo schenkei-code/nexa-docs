@@ -1,0 +1,38 @@
+---
+title: Assistants
+description: Persistent voice agents with tools, memory, and personas.
+---
+
+# Assistants
+
+An assistant is a saved configuration — system prompt, voice, tools, and
+memory policy — that you attach to any conversation.
+
+## Create
+
+`POST /v1/assistants`
+
+```json
+{
+  "name": "Support Agent",
+  "voice_id": "nv_friendly_female",
+  "system_prompt": "You are the cheerful support agent for Acme Corp...",
+  "tools": [
+    { "type": "http", "name": "lookup_order", "url": "https://api.acme.com/orders/{id}" }
+  ],
+  "memory": { "scope": "user", "retention_days": 30 }
+}
+```
+
+## List
+
+`GET /v1/assistants` — paginated via `cursor`.
+
+## Update
+
+`PATCH /v1/assistants/{id}` — partial updates. Any conversation opened after
+the patch uses the new config; live sessions keep their snapshot.
+
+## Delete
+
+`DELETE /v1/assistants/{id}` — soft-delete. Existing conversations stay intact.

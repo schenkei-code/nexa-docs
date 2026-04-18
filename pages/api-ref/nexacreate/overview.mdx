@@ -1,0 +1,62 @@
+---
+title: NexaCreate API
+description: Generative image and video endpoints. Credits-based, async jobs, Replicate backend.
+---
+
+import { Callout, Cards } from "nextra/components";
+
+# NexaCreate API
+
+<span className="nexa-product-pill" data-product="create">NexaCreate</span>
+
+NexaCreate generates images and videos from prompts, references, or templates.
+The hard parts — model selection, queueing, credit accounting, webhook signing —
+are handled for you. You talk to one surface.
+
+<Callout type="info">
+  NexaCreate endpoints are under active development. Shapes below are frozen
+  for v1 and will not break within a major version, but implementation may
+  land in phases. See the [Changelog](/changelog).
+</Callout>
+
+<Cards>
+  <Cards.Card title="Images" href="/api-ref/nexacreate/images">
+    Text-to-image, image-to-image, upscale, background removal.
+  </Cards.Card>
+  <Cards.Card title="Videos" href="/api-ref/nexacreate/videos">
+    Text-to-video, image-to-video, lipsync, cinematic generation.
+  </Cards.Card>
+  <Cards.Card title="Jobs" href="/api-ref/nexacreate/jobs">
+    Async job lifecycle, polling, webhooks.
+  </Cards.Card>
+  <Cards.Card title="Credits" href="/api-ref/nexacreate/credits">
+    Balance, usage, top-up, refunds.
+  </Cards.Card>
+</Cards>
+
+## Model routing
+
+You never pick a raw model id. You pick a **preset** and NexaCreate routes to
+the best-available backend (Replicate, Runway, Pika, Fal, …) based on price,
+latency and quality score.
+
+| Preset                     | Use for                                    |
+| -------------------------- | ------------------------------------------ |
+| `image.fast`               | Thumbnails, drafts                          |
+| `image.quality`            | Hero images, marketing visuals              |
+| `image.realistic_portrait` | People, skin, hands                         |
+| `video.fast`               | 5–10 s social clips                         |
+| `video.cinematic`          | Pitch videos, ads                           |
+| `video.lipsync`            | Avatars, voice-driven talking heads         |
+
+Override with `model: "replicate/…"` if you need determinism.
+
+## Async by default
+
+Every generation is a job. Poll or subscribe via webhook.
+
+```
+POST /v1/images    → 202 + job_id
+POST /v1/videos    → 202 + job_id
+GET  /v1/jobs/{id} → { status, progress, result? }
+```

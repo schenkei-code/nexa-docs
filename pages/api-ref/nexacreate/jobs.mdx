@@ -1,0 +1,71 @@
+---
+title: Jobs & Webhooks
+description: Async job lifecycle, polling, and webhook signatures.
+---
+
+# Jobs & Webhooks
+
+Every image or video request returns a job id. Jobs live through five states:
+
+```
+queued → running → finalizing → succeeded | failed | canceled
+```
+
+## Get a job
+
+```
+GET /v1/jobs/{id}
+```
+
+```json
+{
+  "id": "job_img_01HZ…",
+  "status": "succeeded",
+  "progress": 1.0,
+  "created_at": "2026-04-18T10:12:00Z",
+  "finished_at": "2026-04-18T10:12:17Z",
+  "credits_used": 4,
+  "outputs": [
+    {
+      "url": "https://cdn.nexacreate.com/o/01HZ…/0.jpg",
+      "width": 1920,
+      "height": 1080,
+      "mime": "image/jpeg",
+      "expires_at": "2026-04-25T10:12:17Z"
+    }
+  ]
+}
+```
+
+## List
+
+```
+GET /v1/jobs?status=running&limit=20
+```
+
+## Cancel
+
+```
+POST /v1/jobs/{id}/cancel
+```
+
+Canceling refunds reserved credits minus work already done.
+
+## Webhooks
+
+Subscribe in the dashboard under **Webhooks → Create endpoint**. Events:
+
+- `job.started`
+- `job.progress` (throttled to every 2 s)
+- `job.succeeded`
+- `job.failed`
+- `job.canceled`
+
+Every delivery carries `X-Nexa-Signature`:
+
+```
+X-Nexa-Signature: t=1713441000,v1=3d4b…
+```
+
+Verify by recomputing `HMAC-SHA256(secret, "v0:" + t + ":" + rawBody)` and
+comparing against `v1`. Reject if `|now - t| > 300 s`.
