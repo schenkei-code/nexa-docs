@@ -39,7 +39,7 @@ const config: DocsThemeConfig = {
           textTransform: "uppercase",
         }}
       >
-        Beta
+        v1 · public
       </span>
     </span>
   ),
@@ -91,15 +91,17 @@ const config: DocsThemeConfig = {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta
         name="description"
-        content="The Nexa API — one account, all products. Developer docs for NexaAds, NexaCreate, NexaLytics, and NexaVoize."
+        content="Developer docs for NexaAds, NexaCreate, NexaLytics, and NexaVoize. REST, MCP servers for agents, typed SDKs for TS, Python and Go. One account, one auth."
       />
-      <meta property="og:title" content="Nexa Docs" />
+      <meta property="og:title" content="Nexa Docs — one account, every product" />
       <meta
         property="og:description"
-        content="One account, all products. REST, MCP, and typed SDKs for the Nexa API family."
+        content="REST, MCP, and typed SDKs for the Nexa API family. Auth, quickstart, webhooks and copy-paste examples."
       />
       <meta property="og:type" content="website" />
       <meta property="og:url" content="https://docs.nexa.one" />
+      <meta property="og:site_name" content="Nexa Docs" />
+      <link rel="canonical" href="https://docs.nexa.one" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="theme-color" content="#0a0a0f" />
       <link rel="manifest" href="/manifest.webmanifest" />
